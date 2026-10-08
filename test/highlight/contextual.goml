@@ -1,0 +1,27 @@
+fn f() {
+    let scope = 1;
+//      ^ variable
+    let comptime = scope;
+//      ^ variable
+    let select = comptime;
+//      ^ variable
+    let spawn = select;
+//      ^ variable
+    let value = comptime { 1 };
+//              ^ keyword
+    scope {
+//  ^ keyword
+        let job = spawn || value;
+//                ^ keyword
+        job.join()
+    };
+    select priority {
+//  ^ keyword
+//         ^ keyword
+        recv(rx) when ready as item => item,
+//      ^ keyword
+//               ^ keyword
+        default => 0,
+//      ^ keyword
+    }
+}

@@ -1,0 +1,371 @@
+==================
+If let and condition chains
+==================
+
+fn f() { if let Some(x) = item { x } else if ready && let Some(y) = other && y > 0 { y } else { 0 } }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (if_expression
+        (let_condition
+          (tuple_struct_pattern
+            (identifier)
+            (identifier))
+          (identifier))
+        (block
+          (identifier))
+        (if_expression
+          (let_chain
+            (let_chain
+              (identifier)
+              (let_condition
+                (tuple_struct_pattern
+                  (identifier)
+                  (identifier))
+                (identifier)))
+            (binary_expression
+              (identifier)
+              (integer_literal)))
+          (block
+            (identifier))
+          (block
+            (integer_literal)))))))
+
+==================
+While let and boolean grouping
+==================
+
+fn f() { while let Some(x) = next() && (ready || done) { consume(x); } }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (while_expression
+        (let_chain
+          (let_condition
+            (tuple_struct_pattern
+              (identifier)
+              (identifier))
+            (call_expression
+              (identifier)
+              (arguments)))
+          (parenthesized_expression
+            (binary_expression
+              (identifier)
+              (identifier))))
+        (block
+          (expression_statement
+            (call_expression
+              (identifier)
+              (arguments
+                (identifier)))))))))
+
+==================
+Match guards
+==================
+
+fn f() { match value { Some(x) if x > 0 => x, Some(_) | None => { 0 }, } }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (match_expression
+        (identifier)
+        (match_block
+          (match_arm
+            (tuple_struct_pattern
+              (identifier)
+              (identifier))
+            (binary_expression
+              (identifier)
+              (integer_literal))
+            (identifier))
+          (match_arm
+            (or_pattern
+              (tuple_struct_pattern
+                (identifier)
+                (wildcard_pattern))
+              (identifier))
+            (block
+              (integer_literal))))))))
+
+==================
+Select receive send guard and default
+==================
+
+fn f() { select { recv(rx) when ready as value => value, send(tx, message) when open => (), default => (), } }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (select_expression
+        (select_arm
+          (identifier)
+          (select_guard
+            (identifier))
+          (identifier)
+          (identifier))
+        (select_arm
+          (identifier)
+          (identifier)
+          (select_guard
+            (identifier))
+          (tuple_expression))
+        (select_arm
+          (tuple_expression))))))
+
+==================
+Priority select and receive match
+==================
+
+fn f() { select priority { recv(rx) match { Some(x) => x, None => 0 }, recv(other) as _ => 0, } }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (select_expression
+        (select_arm
+          (identifier)
+          (match_block
+            (match_arm
+              (tuple_struct_pattern
+                (identifier)
+                (identifier))
+              (identifier))
+            (match_arm
+              (identifier)
+              (integer_literal))))
+        (select_arm
+          (identifier)
+          (wildcard_pattern)
+          (integer_literal))))))
+
+==================
+Scope spawn and comptime
+==================
+
+const VALUE: isize = comptime { 1 + 2 };
+fn f() { scope { let job = spawn |cancel| run(cancel); job.join() } }
+
+---
+
+(source_file
+  (const_item
+    (identifier)
+    (primitive_type)
+    (comptime_expression
+      (block
+        (binary_expression
+          (integer_literal)
+          (integer_literal)))))
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (scope_expression
+        (block
+          (let_declaration
+            (identifier)
+            (spawn_expression
+              (closure_expression
+                (closure_parameters
+                  (closure_parameter
+                    (identifier)))
+                (call_expression
+                  (identifier)
+                  (arguments
+                    (identifier))))))
+          (call_expression
+            (field_expression
+              (identifier)
+              (identifier))
+            (arguments)))))))
+
+==================
+Contextual words remain identifiers
+==================
+
+fn scope(select: isize, comptime: isize, self: isize) -> isize { let spawn = select; let priority = self; recv::send(default, when); value.scope; value.spawn(|| 1); scope + comptime + spawn + priority }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (primitive_type))
+      (parameter
+        (identifier)
+        (primitive_type))
+      (parameter
+        (identifier)
+        (primitive_type)))
+    (primitive_type)
+    (block
+      (let_declaration
+        (identifier)
+        (identifier))
+      (let_declaration
+        (identifier)
+        (identifier))
+      (expression_statement
+        (call_expression
+          (scoped_identifier
+            (identifier)
+            (identifier))
+          (arguments
+            (identifier)
+            (identifier))))
+      (expression_statement
+        (field_expression
+          (identifier)
+          (identifier)))
+      (expression_statement
+        (call_expression
+          (field_expression
+            (identifier)
+            (identifier))
+          (arguments
+            (closure_expression
+              (closure_parameters)
+              (integer_literal)))))
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (identifier)
+            (identifier))
+          (identifier))
+        (identifier)))))
+
+==================
+Contextual block expressions with simple bodies
+==================
+
+fn f() { let a = comptime { value }; let b = scope { value }; let c = select { default => value }; a + b + c }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (let_declaration
+        (identifier)
+        (comptime_expression
+          (block
+            (identifier))))
+      (let_declaration
+        (identifier)
+        (scope_expression
+          (block
+            (identifier))))
+      (let_declaration
+        (identifier)
+        (select_expression
+          (select_arm
+            (identifier))))
+      (binary_expression
+        (binary_expression
+          (identifier)
+          (identifier))
+        (identifier)))))
+
+==================
+Reserved booleans and contextual word prefixes
+==================
+
+fn f() { true; false; let select_value = false; let scope_value = true; select_value || scope_value }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (boolean_literal))
+      (expression_statement
+        (boolean_literal))
+      (let_declaration
+        (identifier)
+        (boolean_literal))
+      (let_declaration
+        (identifier)
+        (boolean_literal))
+      (binary_expression
+        (identifier)
+        (identifier)))))
+
+==================
+Condition blocks and struct arguments
+==================
+
+fn f() { if check(Point { x: 1 }) { 1 } else { 0 }; while ready { break }; for x in [Point { x: 1 }] { use_value(x); } }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (if_expression
+          (call_expression
+            (identifier)
+            (arguments
+              (struct_expression
+                (identifier)
+                (field_initializer_list
+                  (field_initializer
+                    (identifier)
+                    (integer_literal))))))
+          (block
+            (integer_literal))
+          (block
+            (integer_literal))))
+      (expression_statement
+        (while_expression
+          (identifier)
+          (block
+            (break_expression))))
+      (for_expression
+        (identifier)
+        (array_expression
+          (struct_expression
+            (identifier)
+            (field_initializer_list
+              (field_initializer
+                (identifier)
+                (integer_literal)))))
+        (block
+          (expression_statement
+            (call_expression
+              (identifier)
+              (arguments
+                (identifier)))))))))

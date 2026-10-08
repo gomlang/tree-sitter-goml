@@ -1,0 +1,37 @@
+package example;
+//      ^ module
+
+pub struct Point {
+//         ^ type
+    pub x: isize,
+//      ^ property
+//         ^ type.builtin
+}
+
+fn add(left: isize, right: isize) -> isize {
+// ^ function
+//     ^ variable.parameter
+    left + right
+//       ^ operator
+}
+
+fn main() {
+    let ready = true;
+//              ^ boolean
+    let scope = 1;
+//      ^ variable
+//              ^ number
+    let value = add(scope, 2);
+//              ^ function
+    let point = Point { x: value };
+//              ^ type
+//                      ^ property
+    point.x;
+//        ^ property
+    let text = f"result={value}";
+//                       ^ variable
+    let path = r#"a\b"#;
+//             ^ string
+    // ordinary comment
+//  ^ comment
+}

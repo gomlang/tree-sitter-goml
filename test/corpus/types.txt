@@ -1,0 +1,133 @@
+==================
+Composite and right associative function types
+==================
+
+type F = (isize, string) -> bool -> ();
+type A = [Option[(u8, char)]; N + 1];
+type Unit = ();
+type Single = (isize,);
+type Group = (isize);
+
+---
+
+(source_file
+  (type_item
+    (type_identifier)
+    (function_type
+      (tuple_type
+        (primitive_type)
+        (primitive_type))
+      (function_type
+        (primitive_type)
+        (tuple_type))))
+  (type_item
+    (type_identifier)
+    (array_type
+      (generic_type
+        (type_identifier)
+        (type_arguments
+          (tuple_type
+            (primitive_type)
+            (primitive_type))))
+      (binary_expression
+        (identifier)
+        (integer_literal))))
+  (type_item
+    (type_identifier)
+    (tuple_type))
+  (type_item
+    (type_identifier)
+    (tuple_type
+      (primitive_type)))
+  (type_item
+    (type_identifier)
+    (tuple_type
+      (primitive_type))))
+
+==================
+Const arguments and associated bindings
+==================
+
+type A = Buffer[u8, 16];
+type B = Buffer[u8, {N + 1}];
+type C = dyn Iterator[Item = string] + Show;
+fn values() -> impl Iterator[Item = u8] { make() }
+
+---
+
+(source_file
+  (type_item
+    (type_identifier)
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (primitive_type)
+        (integer_literal))))
+  (type_item
+    (type_identifier)
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (primitive_type)
+        (block
+          (binary_expression
+            (identifier)
+            (integer_literal))))))
+  (type_item
+    (type_identifier)
+    (dynamic_type
+      (trait_bounds
+        (trait_bound
+          (type_identifier)
+          (type_arguments
+            (associated_type_binding
+              (type_identifier)
+              (primitive_type))))
+        (trait_bound
+          (type_identifier)))))
+  (function_item
+    (identifier)
+    (parameters)
+    (opaque_type
+      (trait_bounds
+        (trait_bound
+          (type_identifier)
+          (type_arguments
+            (associated_type_binding
+              (type_identifier)
+              (primitive_type))))))
+    (block
+      (call_expression
+        (identifier)
+        (arguments)))))
+
+==================
+Scoped SIMD Self and never types
+==================
+
+type V = simd::i32x4;
+trait T { fn value(self) -> Self::Value; fn stop(self) -> never; }
+
+---
+
+(source_file
+  (type_item
+    (type_identifier)
+    (scoped_type_identifier
+      (identifier)
+      (type_identifier)))
+  (trait_item
+    (type_identifier)
+    (trait_body
+      (function_signature_item
+        (identifier)
+        (parameters
+          (self_parameter))
+        (scoped_type_identifier
+          (identifier)
+          (type_identifier)))
+      (function_signature_item
+        (identifier)
+        (parameters
+          (self_parameter))
+        (type_identifier)))))

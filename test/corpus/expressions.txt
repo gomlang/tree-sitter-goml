@@ -1,0 +1,429 @@
+==================
+Operator precedence
+==================
+
+fn f() { a || b && c == d | e ^ f & g << h + i * -j; a - b - c; -a.b()[i]?; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (binary_expression
+          (identifier)
+          (binary_expression
+            (identifier)
+            (binary_expression
+              (identifier)
+              (binary_expression
+                (identifier)
+                (binary_expression
+                  (identifier)
+                  (binary_expression
+                    (identifier)
+                    (binary_expression
+                      (identifier)
+                      (binary_expression
+                        (identifier)
+                        (binary_expression
+                          (identifier)
+                          (unary_expression
+                            (identifier))))))))))))
+      (expression_statement
+        (binary_expression
+          (binary_expression
+            (identifier)
+            (identifier))
+          (identifier)))
+      (expression_statement
+        (unary_expression
+          (try_expression
+            (index_expression
+              (call_expression
+                (field_expression
+                  (identifier)
+                  (identifier))
+                (arguments))
+              (identifier))))))))
+
+==================
+Calls type arguments and indexing
+==================
+
+fn f() { foo::[T](items[0]); Type::[T]::new::[U](x); value.method::[u8](x).field.0; values[1..=3]; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (call_expression
+          (generic_function
+            (identifier)
+            (type_arguments
+              (type_identifier)))
+          (arguments
+            (index_expression
+              (identifier)
+              (integer_literal)))))
+      (expression_statement
+        (call_expression
+          (generic_function
+            (scoped_generic_identifier
+              (generic_function
+                (identifier)
+                (type_arguments
+                  (type_identifier)))
+              (identifier))
+            (type_arguments
+              (type_identifier)))
+          (arguments
+            (identifier))))
+      (expression_statement
+        (field_expression
+          (field_expression
+            (call_expression
+              (generic_function
+                (field_expression
+                  (identifier)
+                  (identifier))
+                (type_arguments
+                  (primitive_type)))
+              (arguments
+                (identifier)))
+            (identifier))
+          (integer_literal)))
+      (expression_statement
+        (index_expression
+          (identifier)
+          (range_expression
+            (integer_literal)
+            (integer_literal)))))))
+
+==================
+Tuples arrays and structs
+==================
+
+fn f() { (); (1); (1,); (1, 2); []; [1, 2,]; [0; N + 1]; Point { X: 1, y, ..other }; Point { ..other }; Point {}; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (tuple_expression))
+      (expression_statement
+        (parenthesized_expression
+          (integer_literal)))
+      (expression_statement
+        (tuple_expression
+          (integer_literal)))
+      (expression_statement
+        (tuple_expression
+          (integer_literal)
+          (integer_literal)))
+      (expression_statement
+        (array_expression))
+      (expression_statement
+        (array_expression
+          (integer_literal)
+          (integer_literal)))
+      (expression_statement
+        (array_expression
+          (integer_literal)
+          (binary_expression
+            (identifier)
+            (integer_literal))))
+      (expression_statement
+        (struct_expression
+          (identifier)
+          (field_initializer_list
+            (field_initializer
+              (identifier)
+              (integer_literal))
+            (shorthand_field_initializer
+              (identifier))
+            (base_field_initializer
+              (identifier)))))
+      (expression_statement
+        (struct_expression
+          (identifier)
+          (field_initializer_list
+            (base_field_initializer
+              (identifier)))))
+      (expression_statement
+        (struct_expression
+          (identifier)
+          (field_initializer_list))))))
+
+==================
+Closures and blocks
+==================
+
+fn f() { let add = |a: isize, b: isize| a + b; let next = || { 1 }; let discard = |_, x| x; let x = { let y = 1; y + 1 }; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (let_declaration
+        (identifier)
+        (closure_expression
+          (closure_parameters
+            (closure_parameter
+              (identifier)
+              (primitive_type))
+            (closure_parameter
+              (identifier)
+              (primitive_type)))
+          (binary_expression
+            (identifier)
+            (identifier))))
+      (let_declaration
+        (identifier)
+        (closure_expression
+          (closure_parameters)
+          (block
+            (integer_literal))))
+      (let_declaration
+        (identifier)
+        (closure_expression
+          (closure_parameters
+            (closure_parameter
+              (wildcard_pattern))
+            (closure_parameter
+              (identifier)))
+          (identifier)))
+      (let_declaration
+        (identifier)
+        (block
+          (let_declaration
+            (identifier)
+            (integer_literal))
+          (binary_expression
+            (identifier)
+            (integer_literal)))))))
+
+==================
+Cast try ranges and go
+==================
+
+fn f() { let x = value as dyn Show; 1 + 2..=max(); call()?; go work(); }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (let_declaration
+        (identifier)
+        (cast_expression
+          (identifier)
+          (dynamic_type
+            (trait_bounds
+              (trait_bound
+                (type_identifier))))))
+      (expression_statement
+        (range_expression
+          (binary_expression
+            (integer_literal)
+            (integer_literal))
+          (call_expression
+            (identifier)
+            (arguments))))
+      (expression_statement
+        (try_expression
+          (call_expression
+            (identifier)
+            (arguments))))
+      (expression_statement
+        (go_expression
+          (call_expression
+            (identifier)
+            (arguments)))))))
+
+==================
+Assignments and let else
+==================
+
+fn f() { let mut x: isize = 1; x += 1; x <<= 2; value.field = x; array[0] = x; let Some(y) = result else { return }; defer close(); x }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (let_declaration
+        (mutable_specifier)
+        (identifier)
+        (primitive_type)
+        (integer_literal))
+      (assignment_statement
+        (identifier)
+        (integer_literal))
+      (assignment_statement
+        (identifier)
+        (integer_literal))
+      (assignment_statement
+        (field_expression
+          (identifier)
+          (identifier))
+        (identifier))
+      (assignment_statement
+        (index_expression
+          (identifier)
+          (integer_literal))
+        (identifier))
+      (let_declaration
+        (tuple_struct_pattern
+          (identifier)
+          (identifier))
+        (identifier)
+        (block
+          (return_expression)))
+      (defer_statement
+        (call_expression
+          (identifier)
+          (arguments)))
+      (identifier))))
+
+==================
+Tail expressions and control statements
+==================
+
+fn f() { if ready { work(); } loop { break } while ready { break } for x in xs { use_value(x); } match value { Some(x) => x, None => 0 } }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (if_expression
+          (identifier)
+          (block
+            (expression_statement
+              (call_expression
+                (identifier)
+                (arguments))))))
+      (expression_statement
+        (loop_expression
+          (block
+            (break_expression))))
+      (expression_statement
+        (while_expression
+          (identifier)
+          (block
+            (break_expression))))
+      (expression_statement
+        (for_expression
+          (identifier)
+          (identifier)
+          (block
+            (expression_statement
+              (call_expression
+                (identifier)
+                (arguments
+                  (identifier)))))))
+      (match_expression
+        (identifier)
+        (match_block
+          (match_arm
+            (tuple_struct_pattern
+              (identifier)
+              (identifier))
+            (identifier))
+          (match_arm
+            (identifier)
+            (integer_literal)))))))
+
+==================
+Labeled loop statements and values
+==================
+
+fn f() { 'outer: for x in xs { 'inner: while ready { continue 'outer; break 'inner; }; }; let value = 'retry: loop { break 'retry 42 }; value }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (labeled_expression
+          (label)
+          (for_expression
+            (identifier)
+            (identifier)
+            (block
+              (expression_statement
+                (labeled_expression
+                  (label)
+                  (while_expression
+                    (identifier)
+                    (block
+                      (expression_statement
+                        (continue_expression
+                          (label)))
+                      (expression_statement
+                        (break_expression
+                          (label)))))))))))
+      (let_declaration
+        (identifier)
+        (labeled_expression
+          (label)
+          (loop_expression
+            (block
+              (break_expression
+                (label)
+                (integer_literal))))))
+      (identifier))))
+
+==================
+Structs in conditions with parentheses
+==================
+
+fn f() { if (Point { x: 1 }).x == 1 { true } else { false } }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (if_expression
+        (binary_expression
+          (field_expression
+            (parenthesized_expression
+              (struct_expression
+                (identifier)
+                (field_initializer_list
+                  (field_initializer
+                    (identifier)
+                    (integer_literal)))))
+            (identifier))
+          (integer_literal))
+        (block
+          (boolean_literal))
+        (block
+          (boolean_literal))))))

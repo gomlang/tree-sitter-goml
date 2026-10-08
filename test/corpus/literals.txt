@@ -1,0 +1,282 @@
+==================
+Numeric and character literals
+==================
+
+fn f() { 1_000; 0b10_01; 0B10; 0o7_55; 0O77; 0xFF_00; 0Xff; 1.25; 1e3; 2.5e-2; 1_0.5_0E+1_0; '中'; '\n'; '\u0041'; b'\xFF'; b'\0'; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (integer_literal))
+      (expression_statement
+        (integer_literal))
+      (expression_statement
+        (integer_literal))
+      (expression_statement
+        (integer_literal))
+      (expression_statement
+        (integer_literal))
+      (expression_statement
+        (integer_literal))
+      (expression_statement
+        (integer_literal))
+      (expression_statement
+        (float_literal))
+      (expression_statement
+        (float_literal))
+      (expression_statement
+        (float_literal))
+      (expression_statement
+        (float_literal))
+      (expression_statement
+        (char_literal))
+      (expression_statement
+        (char_literal))
+      (expression_statement
+        (char_literal))
+      (expression_statement
+        (byte_literal))
+      (expression_statement
+        (byte_literal)))))
+
+==================
+Strings containing comments escapes and whitespace
+==================
+
+fn f() { "///"; " // text"; "https://example.com"; "\"\\\n\r\t\b\f\/\u0041"; ""; b"// bytes\xFF\0"; b""; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (string_literal
+          (string_content)))
+      (expression_statement
+        (string_literal
+          (string_content)))
+      (expression_statement
+        (string_literal
+          (string_content)))
+      (expression_statement
+        (string_literal
+          (escape_sequence)
+          (escape_sequence)
+          (escape_sequence)
+          (escape_sequence)
+          (escape_sequence)
+          (escape_sequence)
+          (escape_sequence)
+          (escape_sequence)
+          (escape_sequence)))
+      (expression_statement
+        (string_literal))
+      (expression_statement
+        (byte_string_literal
+          (byte_string_content)
+          (byte_escape_sequence)
+          (byte_escape_sequence)))
+      (expression_statement
+        (byte_string_literal)))))
+
+==================
+Raw strings and unmatched interior delimiters
+==================
+
+fn f() { r"raw\path"; r###"one "# two "## three"###; br##"ascii "# text"##; r#"line one
+line two"#; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (raw_string_literal))
+      (expression_statement
+        (raw_string_literal))
+      (expression_statement
+        (raw_byte_string_literal))
+      (expression_statement
+        (raw_string_literal)))))
+
+==================
+Interpolation nested expressions and strings
+==================
+
+fn f() { f"{value} {{ready}} {format("//", Point { x: 1 })}"; f"{f"nested {x}"}"; f"{r#"raw }"#}"; f"{if ready { 1 } else { 0 }}"; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (interpolated_string_expression
+          (interpolation
+            (identifier))
+          (interpolation_content)
+          (escaped_brace)
+          (interpolation_content)
+          (escaped_brace)
+          (interpolation_content)
+          (interpolation
+            (call_expression
+              (identifier)
+              (arguments
+                (string_literal
+                  (string_content))
+                (struct_expression
+                  (identifier)
+                  (field_initializer_list
+                    (field_initializer
+                      (identifier)
+                      (integer_literal)))))))))
+      (expression_statement
+        (interpolated_string_expression
+          (interpolation
+            (interpolated_string_expression
+              (interpolation_content)
+              (interpolation
+                (identifier))))))
+      (expression_statement
+        (interpolated_string_expression
+          (interpolation
+            (raw_string_literal))))
+      (expression_statement
+        (interpolated_string_expression
+          (interpolation
+            (if_expression
+              (identifier)
+              (block
+                (integer_literal))
+              (block
+                (integer_literal)))))))))
+
+==================
+Multiline strings
+==================
+
+fn f() { let text =
+    \\first line
+    \\second line // retained
+    \\third line
+; text }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (let_declaration
+        (identifier)
+        (multiline_string_literal))
+      (identifier))))
+
+==================
+Line and documentation comments
+==================
+
+//! package
+package demo;
+/// docs
+//// ordinary
+#[test]
+fn f() { // line
+    1 // tail
+}
+
+---
+
+(source_file
+  (line_comment)
+  (package_declaration
+    (identifier))
+  (line_comment)
+  (line_comment)
+  (function_item
+    (attribute
+      (identifier))
+    (identifier)
+    (parameters)
+    (block
+      (line_comment)
+      (integer_literal)
+      (line_comment))))
+
+==================
+Empty raw and raw byte strings
+==================
+
+fn f() { r""; r#""#; br""; br##""##; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (raw_string_literal))
+      (expression_statement
+        (raw_string_literal))
+      (expression_statement
+        (raw_byte_string_literal))
+      (expression_statement
+        (raw_byte_string_literal)))))
+
+==================
+Escaped slash in byte strings
+==================
+
+fn f() { b"\/"; b"\""; b"\\"; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (byte_string_literal
+          (byte_escape_sequence)))
+      (expression_statement
+        (byte_string_literal
+          (byte_escape_sequence)))
+      (expression_statement
+        (byte_string_literal
+          (byte_escape_sequence))))))
+
+==================
+CRLF multiline strings
+==================
+
+fn f() {
+    \\first
+    \\second
+}
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (multiline_string_literal))))

@@ -1,0 +1,466 @@
+==================
+Packages and imports
+==================
+
+package demo;
+use std::io;
+use module::model as data;
+pub use std::collections::{Map, Set as Values,};
+
+---
+
+(source_file
+  (package_declaration
+    (identifier))
+  (use_declaration
+    (scoped_identifier
+      (identifier)
+      (identifier)))
+  (use_declaration
+    (scoped_identifier
+      (identifier)
+      (identifier))
+    (identifier))
+  (use_declaration
+    (visibility_modifier)
+    (scoped_identifier
+      (identifier)
+      (identifier))
+    (use_list
+      (use_item
+        (identifier))
+      (use_item
+        (identifier)
+        (identifier)))))
+
+==================
+Attributes and extern declarations
+==================
+
+#[go_ffi("fmt", "Println")]
+pub extern fn print[T: Debug](value: T) -> () where T: Show;
+#[go_type("os", "File")]
+pub extern type File;
+#[config(name = r#"raw"#, values = [1, 2], nested = {key: (true, false)})]
+fn f() {}
+
+---
+
+(source_file
+  (extern_function_item
+    (attribute
+      (identifier)
+      (token_tree
+        (string_literal
+          (string_content))
+        (string_literal
+          (string_content))))
+    (visibility_modifier)
+    (identifier)
+    (type_parameters
+      (type_parameter
+        (type_identifier)
+        (trait_bounds
+          (trait_bound
+            (type_identifier)))))
+    (parameters
+      (parameter
+        (identifier)
+        (type_identifier)))
+    (tuple_type)
+    (where_clause
+      (where_predicate
+        (type_identifier)
+        (trait_bounds
+          (trait_bound
+            (type_identifier))))))
+  (extern_type_item
+    (attribute
+      (identifier)
+      (token_tree
+        (string_literal
+          (string_content))
+        (string_literal
+          (string_content))))
+    (visibility_modifier)
+    (type_identifier))
+  (function_item
+    (attribute
+      (identifier)
+      (token_tree
+        (identifier)
+        (raw_string_literal)
+        (identifier)
+        (token_tree
+          (integer_literal)
+          (integer_literal))
+        (identifier)
+        (token_tree
+          (identifier)
+          (token_tree
+            (boolean_literal)
+            (boolean_literal)))))
+    (identifier)
+    (parameters)
+    (block)))
+
+==================
+Structs and newtypes
+==================
+
+pub struct Pair[T, const N: usize] { pub left: T, right: [T; N], }
+struct Id(pub u64);
+struct i32x4([i32; 4]);
+
+---
+
+(source_file
+  (struct_item
+    (visibility_modifier)
+    (type_identifier)
+    (type_parameters
+      (type_parameter
+        (type_identifier))
+      (const_parameter
+        (type_identifier)))
+    (field_declaration_list
+      (field_declaration
+        (visibility_modifier)
+        (identifier)
+        (type_identifier))
+      (field_declaration
+        (identifier)
+        (array_type
+          (type_identifier)
+          (identifier)))))
+  (struct_item
+    (type_identifier)
+    (ordered_field_declaration_list
+      (visibility_modifier)
+      (primitive_type)))
+  (struct_item
+    (type_identifier)
+    (ordered_field_declaration_list
+      (array_type
+        (primitive_type)
+        (integer_literal)))))
+
+==================
+Enums
+==================
+
+enum Value[T] { None, Some(T), Pair(T, T), Named { name: string, value: T }, }
+
+---
+
+(source_file
+  (enum_item
+    (type_identifier)
+    (type_parameters
+      (type_parameter
+        (type_identifier)))
+    (enum_variant_list
+      (enum_variant
+        (identifier))
+      (enum_variant
+        (identifier)
+        (enum_payload_field
+          (type_identifier)))
+      (enum_variant
+        (identifier)
+        (enum_payload_field
+          (type_identifier))
+        (enum_payload_field
+          (type_identifier)))
+      (enum_variant
+        (identifier)
+        (field_declaration_list
+          (field_declaration
+            (identifier)
+            (primitive_type))
+          (field_declaration
+            (identifier)
+            (type_identifier)))))))
+
+==================
+Constants statics and aliases
+==================
+
+const SIZE: usize = 2 * 4;
+static VALUE: Cell[isize] = Cell::new(0);
+pub type Buffer[T, const N: usize] = [T; N];
+
+---
+
+(source_file
+  (const_item
+    (identifier)
+    (primitive_type)
+    (binary_expression
+      (integer_literal)
+      (integer_literal)))
+  (static_item
+    (identifier)
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (primitive_type)))
+    (call_expression
+      (scoped_identifier
+        (identifier)
+        (identifier))
+      (arguments
+        (integer_literal))))
+  (type_item
+    (visibility_modifier)
+    (type_identifier)
+    (type_parameters
+      (type_parameter
+        (type_identifier))
+      (const_parameter
+        (type_identifier)))
+    (array_type
+      (type_identifier)
+      (identifier))))
+
+==================
+Trait members
+==================
+
+pub trait Convert[T]: Debug + Show where T: Debug { type Output: Show; const N: usize; const DEFAULT: usize = 1; fn convert(self, value: T) -> Self::Output; fn size(self: Self) -> usize { 1 } }
+
+---
+
+(source_file
+  (trait_item
+    (visibility_modifier)
+    (type_identifier)
+    (type_parameters
+      (type_parameter
+        (type_identifier)))
+    (trait_bounds
+      (trait_bound
+        (type_identifier))
+      (trait_bound
+        (type_identifier)))
+    (where_clause
+      (where_predicate
+        (type_identifier)
+        (trait_bounds
+          (trait_bound
+            (type_identifier)))))
+    (trait_body
+      (associated_type
+        (type_identifier)
+        (trait_bounds
+          (trait_bound
+            (type_identifier))))
+      (associated_const
+        (identifier)
+        (primitive_type))
+      (associated_const
+        (identifier)
+        (primitive_type)
+        (integer_literal))
+      (function_signature_item
+        (identifier)
+        (parameters
+          (self_parameter)
+          (parameter
+            (identifier)
+            (type_identifier)))
+        (scoped_type_identifier
+          (identifier)
+          (type_identifier)))
+      (function_item
+        (identifier)
+        (parameters
+          (parameter
+            (identifier)
+            (type_identifier)))
+        (primitive_type)
+        (block
+          (integer_literal))))))
+
+==================
+Trait and inherent impls
+==================
+
+impl[T: Show] Convert[T] for Wrapper[T] where T: Debug, T::Item = string { type Output = string; const N: usize = 1; fn convert(self, value: T) -> string { value.to_string() } }
+impl[T] Wrapper[T] { pub const N: usize = 2; #[inline] pub fn new(value: T) -> Self { Self { value } } }
+
+---
+
+(source_file
+  (impl_item
+    (type_parameters
+      (type_parameter
+        (type_identifier)
+        (trait_bounds
+          (trait_bound
+            (type_identifier)))))
+    (trait_bound
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (where_clause
+      (where_predicate
+        (type_identifier)
+        (trait_bounds
+          (trait_bound
+            (type_identifier))))
+      (where_predicate
+        (scoped_type_identifier
+          (identifier)
+          (type_identifier))
+        (primitive_type)))
+    (impl_body
+      (type_item
+        (type_identifier)
+        (primitive_type))
+      (const_item
+        (identifier)
+        (primitive_type)
+        (integer_literal))
+      (function_item
+        (identifier)
+        (parameters
+          (self_parameter)
+          (parameter
+            (identifier)
+            (type_identifier)))
+        (primitive_type)
+        (block
+          (call_expression
+            (field_expression
+              (identifier)
+              (identifier))
+            (arguments))))))
+  (impl_item
+    (type_parameters
+      (type_parameter
+        (type_identifier)))
+    (generic_type
+      (type_identifier)
+      (type_arguments
+        (type_identifier)))
+    (impl_body
+      (const_item
+        (visibility_modifier)
+        (identifier)
+        (primitive_type)
+        (integer_literal))
+      (function_item
+        (attribute
+          (identifier))
+        (visibility_modifier)
+        (identifier)
+        (parameters
+          (parameter
+            (identifier)
+            (type_identifier)))
+        (type_identifier)
+        (block
+          (struct_expression
+            (identifier)
+            (field_initializer_list
+              (shorthand_field_initializer
+                (identifier)))))))))
+
+==================
+Function bounds and shorthand receiver
+==================
+
+fn fold[T: Add + Copy, const N: usize](values: [T; N], f: (T, T) -> T) -> T where T: Show, { values[0] }
+impl Value { fn get(self) -> isize { self.value } fn set(self: Value, value: isize) {} }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (type_parameters
+      (type_parameter
+        (type_identifier)
+        (trait_bounds
+          (trait_bound
+            (type_identifier))
+          (trait_bound
+            (type_identifier))))
+      (const_parameter
+        (type_identifier)))
+    (parameters
+      (parameter
+        (identifier)
+        (array_type
+          (type_identifier)
+          (identifier)))
+      (parameter
+        (identifier)
+        (function_type
+          (tuple_type
+            (type_identifier)
+            (type_identifier))
+          (type_identifier))))
+    (type_identifier)
+    (where_clause
+      (where_predicate
+        (type_identifier)
+        (trait_bounds
+          (trait_bound
+            (type_identifier)))))
+    (block
+      (index_expression
+        (identifier)
+        (integer_literal))))
+  (impl_item
+    (type_identifier)
+    (impl_body
+      (function_item
+        (identifier)
+        (parameters
+          (self_parameter))
+        (primitive_type)
+        (block
+          (field_expression
+            (identifier)
+            (identifier))))
+      (function_item
+        (identifier)
+        (parameters
+          (parameter
+            (identifier)
+            (type_identifier))
+          (parameter
+            (identifier)
+            (primitive_type)))
+        (block)))))
+
+==================
+Enum payload attributes
+==================
+
+#[derive(Label)] enum State { #[variant_label] Ready(#[payload_label] isize), }
+
+---
+
+(source_file
+  (enum_item
+    (attribute
+      (identifier)
+      (token_tree
+        (identifier)))
+    (type_identifier)
+    (enum_variant_list
+      (enum_variant
+        (attribute
+          (identifier))
+        (identifier)
+        (enum_payload_field
+          (attribute
+            (identifier))
+          (primitive_type))))))

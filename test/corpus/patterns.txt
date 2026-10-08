@@ -1,0 +1,167 @@
+==================
+Pattern destructuring
+==================
+
+fn f() { let (a, mut b) = pair; let Point { x, y: other, .. } = p; let [first, rest @ .., last] = items; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (let_declaration
+        (tuple_pattern
+          (identifier)
+          (mutable_pattern
+            (mutable_specifier)
+            (identifier)))
+        (identifier))
+      (let_declaration
+        (struct_pattern
+          (identifier)
+          (field_pattern
+            (identifier))
+          (field_pattern
+            (identifier)
+            (identifier))
+          (remaining_field_pattern))
+        (identifier))
+      (let_declaration
+        (slice_pattern
+          (identifier)
+          (rest_pattern
+            (identifier))
+          (identifier))
+        (identifier)))))
+
+==================
+Alias or and ranges
+==================
+
+fn f() { match value { whole @ Some(x) | whole @ Other(x) => x, -10..=-1 => 0, 'a'..='z' => 1, _ => 2, } }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (match_expression
+        (identifier)
+        (match_block
+          (match_arm
+            (or_pattern
+              (alias_pattern
+                (identifier)
+                (tuple_struct_pattern
+                  (identifier)
+                  (identifier)))
+              (alias_pattern
+                (identifier)
+                (tuple_struct_pattern
+                  (identifier)
+                  (identifier))))
+            (identifier))
+          (match_arm
+            (range_pattern
+              (negative_literal
+                (integer_literal))
+              (negative_literal
+                (integer_literal)))
+            (integer_literal))
+          (match_arm
+            (range_pattern
+              (char_literal)
+              (char_literal))
+            (integer_literal))
+          (match_arm
+            (wildcard_pattern)
+            (integer_literal)))))))
+
+==================
+Unit tuple grouped and literal patterns
+==================
+
+fn f() { match value { () => 0, (x,) => x, (Some(x)) => x, [a, ..] => a, true => 1, false => 0, "text" => 2, r#"raw"# => 3, b'x' => 4, } }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (match_expression
+        (identifier)
+        (match_block
+          (match_arm
+            (tuple_pattern)
+            (integer_literal))
+          (match_arm
+            (tuple_pattern
+              (identifier))
+            (identifier))
+          (match_arm
+            (parenthesized_pattern
+              (tuple_struct_pattern
+                (identifier)
+                (identifier)))
+            (identifier))
+          (match_arm
+            (slice_pattern
+              (identifier)
+              (rest_pattern))
+            (identifier))
+          (match_arm
+            (boolean_literal)
+            (integer_literal))
+          (match_arm
+            (boolean_literal)
+            (integer_literal))
+          (match_arm
+            (string_literal
+              (string_content))
+            (integer_literal))
+          (match_arm
+            (raw_string_literal)
+            (integer_literal))
+          (match_arm
+            (byte_literal)
+            (integer_literal)))))))
+
+==================
+Byte range and middle slice rest
+==================
+
+fn f() { match value { b'A'..=b'Z' => 1, _ => 0 }; let [a, middle @ .., b, c] = items; }
+
+---
+
+(source_file
+  (function_item
+    (identifier)
+    (parameters)
+    (block
+      (expression_statement
+        (match_expression
+          (identifier)
+          (match_block
+            (match_arm
+              (range_pattern
+                (byte_literal)
+                (byte_literal))
+              (integer_literal))
+            (match_arm
+              (wildcard_pattern)
+              (integer_literal)))))
+      (let_declaration
+        (slice_pattern
+          (identifier)
+          (rest_pattern
+            (identifier))
+          (identifier)
+          (identifier))
+        (identifier)))))
