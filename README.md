@@ -2,7 +2,7 @@
 
 A Tree-sitter grammar for the GoML programming language (`.goml`). It includes a generated C parser, syntax highlighting and symbol queries, corpus tests, and incremental parsing tests.
 
-The syntax baseline is the GoML compiler at revision `639d0df0f`, particularly `docs/goml.md`, `gomlc/lexer/lexer.goml`, and `gomlc/parser/`. Compiler behavior and executable fixtures take precedence over the abbreviated documentation grammar.
+The syntax baseline is GoML 0.1.60 and compiler revision `840e493e08d64b65bc5422f6e826936516107f17`, particularly `docs/goml.md`, `gomlc/lexer/lexer.goml`, and `gomlc/parser/`. Compiler behavior and executable fixtures take precedence over the abbreviated documentation grammar.
 
 ## Build and test
 
@@ -50,6 +50,8 @@ Contextual words such as `scope`, `spawn`, `select`, and `comptime` also work as
 
 This is an editor parser, not the GoML type checker. Name capitalization, visibility, type and const-expression validity, restrictions on opaque return positions, and other semantic checks remain with the compiler. Some invalid expression combinations may still form syntax trees; this grammar does not reproduce every compiler diagnostic. Documentation comment attachment is also a compiler concern. There is no block-comment syntax.
 
+Explicit generic arguments must be nonempty. Enum owner arguments work in calls and constructor values, such as `Value::[bool]::Item(true)` and `Value::[bool]::Item`. Named-field literals and updates use contextual types instead: `let value: Box[bool] = Box { value: true };`.
+
 ## Real-source regression check
 
 With local GoML and optional ecosystem checkouts, and `rg` installed:
@@ -60,7 +62,7 @@ npm run test:sources -- /path/to/goml /path/to/gomlang
 
 The script checks compiler, driver and library sources, successful `pipeline` and `module` fixtures, and ecosystem `.goml` files. It excludes this grammar's own fixtures and the compiler's diagnostic/crasher fixture directories. Expected failures are tested separately by the integration suite. Paths are supplied explicitly and are not saved in generated artifacts.
 
-The initial verification parsed 3,313 source files from the local GoML and ecosystem checkouts without `ERROR` or `MISSING` nodes.
+The verification against the current baseline parsed 3,430 source files from local GoML and ecosystem checkouts without `ERROR` or `MISSING` nodes.
 
 ## Maintenance
 

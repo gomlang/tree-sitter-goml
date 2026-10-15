@@ -100,7 +100,6 @@ module.exports = grammar({
     [$._path, $.comptime_expression],
     [$._path, $.select_expression],
     [$._expression, $._path],
-    [$._expression, $.struct_expression],
   ],
 
   rules: {
@@ -549,10 +548,7 @@ module.exports = grammar({
       ),
     struct_expression: ($) =>
       seq(
-        field(
-          'name',
-          choice($._path, $.generic_function, $.scoped_generic_identifier),
-        ),
+        field('name', $._path),
         field('body', $.field_initializer_list),
       ),
     field_initializer_list: ($) =>
