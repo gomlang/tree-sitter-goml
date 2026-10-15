@@ -3074,15 +3074,7 @@
         "required": true,
         "types": [
           {
-            "type": "generic_function",
-            "named": true
-          },
-          {
             "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "scoped_generic_identifier",
             "named": true
           },
           {

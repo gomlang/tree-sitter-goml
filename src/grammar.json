@@ -3181,21 +3181,8 @@
           "type": "FIELD",
           "name": "name",
           "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "_path"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "generic_function"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "scoped_generic_identifier"
-              }
-            ]
+            "type": "SYMBOL",
+            "name": "_path"
           }
         },
         {
@@ -6302,10 +6289,6 @@
     [
       "_expression",
       "_path"
-    ],
-    [
-      "_expression",
-      "struct_expression"
     ]
   ],
   "precedences": [],
