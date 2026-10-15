@@ -52,6 +52,20 @@ const invalid = [
   ['empty argument with comma', 'fn f() { call(,); }'],
   ['empty array with comma', 'fn f() { [,]; }'],
   ['empty struct with comma', 'struct A { , }'],
+  ['empty function type arguments', 'fn f() { identity::[](1); }'],
+  ['empty enum owner type arguments', 'fn f() { Value::[]::Item(1); }'],
+  ['empty enum variant type arguments', 'fn f() { Value::Item::[](1); }'],
+  ['empty method type arguments', 'fn f() { value.method::[](); }'],
+  ['named struct type arguments', 'fn f() { Box::[bool] { value: true }; }'],
+  ['struct update type arguments', 'fn f() { Box::[bool] { ..base }; }'],
+  [
+    'named enum owner type arguments',
+    'fn f() { Value::[bool]::Named { value: true }; }',
+  ],
+  [
+    'named enum variant type arguments',
+    'fn f() { Value::Named::[bool] { value: true }; }',
+  ],
   ['multiple slice rests', 'fn f() { let [.., ..] = xs; }'],
   ['struct rest must be last', 'fn f() { let A { .., x } = value; }'],
   ['struct update must be last', 'fn f() { A { ..base, x: 1 }; }'],
@@ -127,6 +141,14 @@ test('booleans and primitive types are distinct from identifier prefixes', () =>
   assert.equal((result.tree.match(/\(primitive_type/g) || []).length, 3);
 });
 
+test('enum owner arguments apply to tuple, unit and constructor values', () => {
+  const result = parse(
+    'fn f() { Value::[bool]::Item(true); Value::[bool]::Empty; let make = Value::[bool]::Item; Array::[isize, 2]::Item([1, 2]); Array::[isize, { SIZE + 1 }]::Item; }',
+  );
+  assert.equal(result.status, 0, result.tree);
+  assert.equal((result.tree.match(/\(scoped_generic_identifier/g) || []).length, 5);
+});
+
 const incrementalCases = [
   ['raw contents', 'fn f() { r##"alpha "# beta"## }', 'alpha', '中文'],
   ['raw opening delimiter', 'fn f() { r#"text"# }', 'r#', 'r##'],
@@ -161,6 +183,7 @@ const incrementalCases = [
     '(Point { x: 1 }).x > 0',
   ],
   ['generic call to indexing', 'fn f() { use_value::[T](x); }', '::[T]', '[0]'],
+  ['enum owner arguments', 'fn f() { Value::[bool]::Item(true); }', 'bool', '[u8; 3]'],
   ['loop label', "fn f() { 'outer: loop { break 'outer } }", "'outer:", ''],
   ['Unicode offset', 'fn f() { "中文"; r#"text"# }', 'text', 'edited'],
   [
